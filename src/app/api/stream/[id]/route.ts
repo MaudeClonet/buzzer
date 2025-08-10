@@ -3,8 +3,8 @@ import {NextRequest} from "next/server";
 import {LobbyEventType} from "@/app/common/lobby-events";
 
 // Setup SSE for streaming lobby events
-export async function GET(request: NextRequest, context: { params: { id: string } }) {
-    const { id: lobbyId } = await context.params;
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }>}) {
+    const { id: lobbyId } = await params;
 
     const id = request.nextUrl.searchParams.get("id");
     if(!id) {
