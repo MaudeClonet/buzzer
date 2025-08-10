@@ -92,6 +92,7 @@ export class Lobby {
                 return;
 
             case LobbyEventType.BUZZ:
+                if(this.buzzedPlayers.includes(player)) return;
                 this.buzzedPlayers.push(player);
                 this.broadcast({
                     type: LobbyEventType.BUZZ,
