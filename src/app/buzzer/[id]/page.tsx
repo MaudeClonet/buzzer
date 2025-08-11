@@ -180,57 +180,67 @@ export default function BuzzerPage({ params }: { params: Promise<{ id: string }>
     return (
         <main className={`${lobby?.buzzedPlayers && lobby?.buzzedPlayers[0] === name ? 'first' : ''} ${lobby?.buzzedPlayers && lobby?.buzzedPlayers.includes(name ?? "") ? 'buzzed' : ''}`}>
             <div className="buzzer-top">
-            {init && !name && (
-                <div>
-                    <h2>Pseudo</h2>
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        const form = e.target as HTMLFormElement;
-                        const nameInput = form.elements.namedItem('name') as HTMLInputElement;
-                        if (nameInput && nameInput.value) {
-                            localStorage.setItem('pseudo', nameInput.value);
-                            setName(nameInput.value);
-                            setNameChanged(true);
-                        }
-                    }}>
-                        <input type="text" name="name" placeholder="Your Name" required/>
-                        <button type="submit">Set Name</button>
-                    </form>
-                </div>
-            )}
-
-            {init && lobby && (
-                <div className="buzzer-columns-responsive">
-                    <div className="background-players grid-cols-1">
-                        <h2>Players</h2>
-                        {lobby.players.map((player, index) => (
-                            <p key={"player-name-" + index}>{player.substring(0, 25)}{lobby.readyPlayers.includes(player) ? " (ready)" : ""}</p>
-                        ))}
+                {init && !name && (
+                    <div style={{marginLeft: "8px"}}>
+                        <h2>Pseudo</h2>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            const form = e.target as HTMLFormElement;
+                            const nameInput = form.elements.namedItem('name') as HTMLInputElement;
+                            if (nameInput && nameInput.value) {
+                                localStorage.setItem('pseudo', nameInput.value);
+                                setName(nameInput.value);
+                                setNameChanged(true);
+                            }
+                        }}>
+                            <input type="text" name="name" placeholder="Your Name"/>
+                            <button style={{marginLeft: "8px"}} type="submit">Set Name</button>
+                        </form>
                     </div>
+                )}
 
-                    {lobby.buzzedPlayers && lobby.buzzedPlayers.length > 0 && (
-                        <div className="background-players grid-cols-1 background-offset">
-                            <h2>Buzzers</h2>
-                            {lobby.buzzedPlayers.map((player, index) => (
-                                <p key={"player-name-" + index}>{player.substring(0, 25)}{lobby.buzzedPlayers.includes(player) ? " (ready)" : ""}</p>
+                {init && lobby && (
+                    <div className="buzzer-columns-responsive">
+                        <div className="background-players grid-cols-1">
+                            <h2>Players</h2>
+                            {lobby.players.map((player, index) => (
+                                <p key={"player-name-" + index}>{player.substring(0, 25)}{lobby.readyPlayers.includes(player) ? " (ready)" : ""}</p>
                             ))}
                         </div>
-                    )}
 
-                    {isAdmin && (
-                        <div className="buzzer-container buzzer-admin">
-                            <button onClick={() => {
-                                sendEvent({ type: LobbyEventType.POP_FIRST_BUZZER })
-                            }}>Pop first buzzer
-                            </button>
-                            <button onClick={() => {
-                                sendEvent({ type: LobbyEventType.RELEASE_BUZZER })
-                            }}>Release buzzer
-                            </button>
+                        {lobby.buzzedPlayers && lobby.buzzedPlayers.length > 0 && (
+                            <div className="background-players grid-cols-1 background-offset">
+                                <h2>Buzzers</h2>
+                                {lobby.buzzedPlayers.map((player, index) => (
+                                    <p key={"player-name-" + index}>{player.substring(0, 25)}</p>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="buzzer-admin">
+                            {isAdmin && (
+                                <>
+                                    <button onClick={() => {
+                                        sendEvent({ type: LobbyEventType.POP_FIRST_BUZZER })
+                                    }}>Pop first buzzer
+                                    </button>
+                                    <button onClick={() => {
+                                        sendEvent({ type: LobbyEventType.RELEASE_BUZZER })
+                                    }}>Release buzzer
+                                    </button>
+                                </>
+                            )}
+
+                            { name && (
+                                <button onClick={() => {
+                                    localStorage.removeItem('pseudo');
+                                    window.location.reload();
+                                }}>Rename
+                                </button>
+                            )}
                         </div>
-                    )}
-                </div>
-            )}
+                    </div>
+                )}
             </div>
             <div className="buzzer-bottom">
                 {init && lobby && (
@@ -241,7 +251,9 @@ export default function BuzzerPage({ params }: { params: Promise<{ id: string }>
                         {lobby.readyPlayers.includes(name ?? "") && (
                             <>
                                 <button onClick={() => sendEvent({ type: LobbyEventType.NOT_READY })}>NOT READY</button>
-                                <button disabled={lobby.buzzedPlayers.length > 0 && lobby.buzzedPlayers[0] === name} className="buzzer-fill-button" onClick={() => sendEvent({ type: LobbyEventType.BUZZ })}>BUZZ</button>
+                                <button disabled={lobby.buzzedPlayers.length > 0 && lobby.buzzedPlayers[0] === name} className="buzzer-fill-button"
+                                        onClick={() => sendEvent({ type: LobbyEventType.BUZZ })}>BUZZ
+                                </button>
                             </>
                         )}
                     </div>
