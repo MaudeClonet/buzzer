@@ -107,7 +107,6 @@ export default function BuzzerPage({ params }: { params: Promise<{ id: string }>
                 case LobbyEventType.RELEASE_BUZZER: {
                     setLobby(prev => ({
                         ...prev,
-                        readyPlayers: [],
                         buzzedPlayers: []
                     }) as unknown as Lobby);
                     break;
@@ -146,7 +145,6 @@ export default function BuzzerPage({ params }: { params: Promise<{ id: string }>
         };
         eventSource.onerror = (err) => {
             console.error('SSE error:', err);
-            eventSource.close();
         };
         return () => {
             eventSource.close();

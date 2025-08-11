@@ -11,7 +11,8 @@ export class Lobby {
         public readonly owner: string,
         public players: Player[] = [],
         public buzzedPlayers: Player[] = [],
-        public readyPlayers: Player[] = []
+        public readyPlayers: Player[] = [],
+        public lastUpdate: Date = new Date()
     ) {
     }
 
@@ -20,11 +21,13 @@ export class Lobby {
     addPlayer(id: string, pseudo: string): Player {
         const player = { id, pseudo };
         this.players.push(player);
+        this.lastUpdate = new Date();
         return player;
     }
 
     removePlayer(id: string) {
         this.players = this.players.filter(player => player.id !== id);
+        this.lastUpdate = new Date();
     }
 
     getPlayer(id: string): Player | undefined {
@@ -48,7 +51,8 @@ export class Lobby {
     }
 
     processEvent(id: string, event: LobbyEvent) {
-        console.log(`Processing ${id} event: ${JSON.stringify(event)}`);
+        console.debug(`Processing ${id} event: ${JSON.stringify(event)}`);
+        this.lastUpdate = new Date();
 
         const player = this.getPlayer(id);
         if (!player && event.type === LobbyEventType.JOIN_GAME) {
@@ -120,7 +124,6 @@ export class Lobby {
 
             case LobbyEventType.RELEASE_BUZZER:
                 this.buzzedPlayers = [];
-                this.readyPlayers = [];
                 this.broadcast({
                     type: LobbyEventType.RELEASE_BUZZER,
                 })
@@ -164,6 +167,16 @@ class LobbyManagerClass {
         }
         console.debug(`Adding lobby with id ${lobby.id}`);
         this.lobbies.set(lobby.id, lobby);
+
+        const interval = setInterval(() => {
+            const now = new Date();
+            if (now.getTime() - lobby.lastUpdate.getTime() > 5 * 60 * 1000) { // 5 minutes
+                console.debug(`Removing inactive lobby with id ${lobby.id}`);
+                this.lobbies.delete(lobby.id);
+            }
+
+            clearInterval(interval);
+        })
     }
 
     getLobby(lobbyId: string): Lobby {
